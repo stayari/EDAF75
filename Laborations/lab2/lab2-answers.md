@@ -10,7 +10,7 @@
         For the relation tickets-shows the start_time/start_date might change but then you would create a new show instead which means we won't have a problem.
     c) Yes the tickets is a weak entity since this entity only ties a customer to a show
 
-    d)
+    d)sdasdas
 
 
 

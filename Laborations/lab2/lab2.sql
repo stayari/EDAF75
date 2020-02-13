@@ -34,7 +34,8 @@ CREATE TABLE shows(
 	th_name TEXT,
 	start_date DATE,
 	start_time TIME,
-	PRIMARY KEY(IMDB_key, start_time, start_date, th_name) FOREIGN KEY (th_name) REFERENCES theaters(th_name)
+	PRIMARY KEY(IMDB_key, start_time, start_date, th_name) 
+	FOREIGN KEY (th_name) REFERENCES theaters(th_name)
 );
 
 CREATE TABLE customers(
@@ -52,7 +53,8 @@ CREATE TABLE tickets(
 	start_time TIME,
 	start_date DATE,
 	--user_id 	TEXT
-	PRIMARY KEY (ticket_id) FOREIGN KEY (th_name, IMDB_key, start_time, start_date) REFERENCES shows(th_name, IMDB_key, start_time, start_date) --FOREIGN KEY (user_id) REFERENCES customers(user_id)
+	PRIMARY KEY (ticket_id) 
+	FOREIGN KEY (th_name, IMDB_key, start_time, start_date) REFERENCES shows(th_name, IMDB_key, start_time, start_date) --FOREIGN KEY (user_id) REFERENCES customers(user_id)
 );
 
 --INSERTING DATA INTO TABLES
