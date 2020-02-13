@@ -38,7 +38,7 @@ CREATE TABLE shows(
 );
 
 CREATE TABLE customers(
-	user_id TEXT DEFAULT (lower(hex(randomblob(16)))),
+	user_id TEXT,
 	full_name TEXT,
 	password TEXT,
 	-- hasha
