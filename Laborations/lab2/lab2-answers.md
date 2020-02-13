@@ -1,7 +1,19 @@
 1) Se figur "Lab2 EDAF75.jpg"
 2) Se figur "Lab2 EDAF75.jpg"
-3)
+3) Se figur "Lab2 EDAF75.jpg"
 4)
+    a) theater - shows    Naturalkey: th_name
+        shows - movies    Naturalkey: IMDB_key
+        shows - tickets   Naturalkey: th_name, IMDB_key, start_time, start_date
+        tickets - customers Naturalkey: user_name 
+    b)  Yes, th_name.
+        For the relation tickets-shows the start_time/start_date might change but then you would create a new show instead which means we won't have a problem.
+    c) Yes the tickets is a weak entity since this entity only ties a customer to a show
+
+    d)
+
+
+
 5)
 6)
     theaters(_th_name_, capacity)
