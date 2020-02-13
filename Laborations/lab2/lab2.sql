@@ -251,6 +251,3 @@ VALUES
 		"20:00",
 		"Fabian"
 	);
-
---   		SET a = a + 1;
---	END;
