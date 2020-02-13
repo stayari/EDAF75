@@ -19,13 +19,11 @@ CREATE TABLE theaters(
 	PRIMARY KEY (th_name)
 );
 
--- Osäker
 CREATE TABLE movies(
 	IMDB_key TEXT,
 	name TEXT,
 	year INT,
 	duration INT,
-	--start_time	TEXT,
 	PRIMARY KEY (IMDB_key)
 );
 
@@ -39,11 +37,10 @@ CREATE TABLE shows(
 );
 
 CREATE TABLE customers(
-	user_id TEXT,
+	user_name TEXT,
 	full_name TEXT,
 	password TEXT,
-	-- hasha
-	PRIMARY KEY (user_id)
+	PRIMARY KEY (user_name)
 );
 
 CREATE TABLE tickets(
@@ -52,10 +49,13 @@ CREATE TABLE tickets(
 	IMDB_key TEXT,
 	start_time TIME,
 	start_date DATE,
-	--user_id 	TEXT
+	user_name TEXT,
 	PRIMARY KEY (ticket_id) 
-	FOREIGN KEY (th_name, IMDB_key, start_time, start_date) REFERENCES shows(th_name, IMDB_key, start_time, start_date) --FOREIGN KEY (user_id) REFERENCES customers(user_id)
-);
+	FOREIGN KEY (th_name, IMDB_key, start_time, start_date)
+	REFERENCES shows(th_name, IMDB_key, start_time, start_date)
+	FOREIGN KEY	(user_name) 
+	REFERENCES customers(user_name)
+	);
 
 --INSERTING DATA INTO TABLES
 --INSERTING THEATERS
@@ -163,19 +163,19 @@ VALUES
 
 --INSERT customers
 INSERT INTO
-	customers (full_name, password)
+	customers 
 VALUES
-	("FABIAN FRANKEL", "hallojsan");
+	("Fabian","FABIAN FRANKEL", "hallojsan");
 
 INSERT INTO
-	customers (full_name, password)
+	customers 
 VALUES
-	("SEPEHR TAYARI", "jamboseli");
+	("Sepehr","SEPEHR TAYARI", "jamboseli");
 
 INSERT INTO
-	customers (full_name, password)
+	customers
 VALUES
-	("MARCUS INGEMANSSON", "DJINGSTRING");
+	("Marcus","MARCUS INGEMANSSON", "DJINGSTRING");
 
 --INSERT TICKETS
 --DECLARE a INT;
@@ -183,68 +183,73 @@ VALUES
 --WHILE a < 50
 --	BEGIN
 INSERT INTO
-	tickets (IMDB_key, th_name, start_time, start_date)
+	tickets (IMDB_key, th_name, start_date, start_time,user_name)
 VALUES
-	("tt0111161", "SF LUND", "2019–02-12", "20:00");
+	("tt0111161", "SF LUND", "2019–02-12", "20:00", "Fabian");
 
 INSERT INTO
-	tickets (IMDB_key, th_name, start_time, start_date)
+	tickets (IMDB_key, th_name, start_date, start_time, user_name)
 VALUES
-	("tt0111161", "SF LUND", "2019–02-13", "20:00");
+	("tt0111161", "SF LUND", "2019–02-13", "20:00", "Sepehr");
 
 INSERT INTO
-	tickets (IMDB_key, th_name, start_time, start_date)
+	tickets (IMDB_key, th_name, start_date, start_time,user_name)
 VALUES
-	("tt0068646", "SF LUND", "2019–02-11", "20:00");
+	("tt0068646", "SF LUND", "2019–02-11", "20:00", "Marcus");
 
 INSERT INTO
-	tickets (IMDB_key, th_name, start_time, start_date)
+	tickets (IMDB_key, th_name, start_date, start_time, user_name)
 VALUES
 	(
 		"tt0468569",
 		"SF MALMO",
 		"2019–02-13",
-		"20:00"
+		"20:00",
+		"Sepehr"
 	);
 
 INSERT INTO
-	tickets (IMDB_key, th_name, start_time, start_date)
+	tickets (IMDB_key, th_name, start_date, start_time, user_name)
 VALUES
 	(
 		"tt0068646",
 		"SF MALMO",
 		"2019–02-11",
-		"20:00"
+		"20:00",
+		"Fabian"
 	);
 
 INSERT INTO
-	tickets (IMDB_key, th_name, start_time, start_date)
+	tickets (IMDB_key, th_name, start_date, start_time,  user_name)
 VALUES
 	(
 		"tt0068646",
 		"SF STOCKHOLM",
 		"2019–02-12",
-		"20:00"
+		"20:00",
+		"Sepehr"
 	);
 
 INSERT INTO
-	tickets (IMDB_key, th_name, start_time, start_date)
+	tickets (IMDB_key, th_name, start_date, start_time, user_name)
 VALUES
 	(
 		"tt0111161",
 		"SF STOCKHOLM",
 		"2019–02-13",
-		"20:00"
+		"20:00",
+		"Marcus"
 	);
 
 INSERT INTO
-	tickets (IMDB_key, th_name, start_time, start_date)
+	tickets (IMDB_key, th_name, start_date, start_time, user_name)
 VALUES
 	(
 		"tt0068646",
 		"SF STOCKHOLM",
 		"2019–02-11",
-		"20:00"
+		"20:00",
+		"Fabian"
 	);
 
 --   		SET a = a + 1;
