@@ -26,12 +26,15 @@ CREATE TABLE movies(
 	PRIMARY KEY (IMDB_key)
 );
 
-CREATE TABLE shows(
+CREATE TABLE performances(
+    show_id INT DEFAULT(lower(hex(randomblob(16)))), --för att få en id
 	IMDB_key TEXT,
 	th_name TEXT,
 	start_date DATE,
 	start_time TIME,
-	PRIMARY KEY(IMDB_key, start_time, start_date, th_name) 
+	remaining_seats INT DEFAULT(999),
+	PRIMARY KEY(show_id)
+	PRIMARY KEY(IMDB_key, start_time, start_date, th_name)
 	FOREIGN KEY (th_name) REFERENCES theaters(th_name)
 );
 

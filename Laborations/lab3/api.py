@@ -2,7 +2,6 @@ from bottle import get, post, run, request, response
 import sqlite3
 import json
 
-
 conn = sqlite3.connect("movies2.sqlite")
 
 def create_sql(filename):
@@ -62,9 +61,6 @@ def reset_db():
     )
     conn.commit()
     return "OK"
-
-
-
 
 @get('/movies')
 def get_movies():
@@ -127,6 +123,53 @@ def return_customers():
          for (user_name, full_name, password) in c]
     return json.dumps({"data": d}, indent=4)
 
+@post('/performances')
+def put_performances():
+    print("NU ÄR VI I PERFORMANCE")
+    response.content_type = 'application/json'
+    IMDB_key = request.query.imdb
+    start_date = request.query.date
+    start_time = request.query.time
+    th_name = request.query.theater
+    print(IMDB_key, start_time, start_date, th_name)
+
+    if not (IMDB_key and start_date and start_time and th_name):
+        response.status = 400
+        return format_response({"error: Missing parameter"})
+
+    c = conn.cursor()
+    query = """
+            SELECT  capacity
+            FROM    theaters
+            WHERE   th_name = ?
+            """
+    c.execute(
+        query,
+        [th_name]
+    )
+    remaining_seats = c.fetchall()[0][0]
+    print(remaining_seats)
+
+    c.execute(
+        """
+        INSERT 
+        INTO    performances(IMDB_key, th_name, start_date, start_time, remaining_seats)
+        VALUES  (?, ?, ?, ?, ?)
+        """,
+        [IMDB_key, th_name, start_date, start_time, remaining_seats]
+    )
+    conn.commit()
+    c.execute(
+        """
+        SELECT * 
+        FROM performances
+        WHERE rowid = last_insert_rowid()
+        """
+    )
+    id = c.fetchone()[0]
+    response.status = 200
+    return "hej"
+    #return format_response({"id": id})#"url": url(f"/performances/{id}")})
 
 
 run(host='localhost', port=7007)
