@@ -34,7 +34,7 @@ CREATE TABLE performances(
 	start_time TIME,
 	remaining_seats INT DEFAULT(999),
 	PRIMARY KEY(show_id)
-	PRIMARY KEY(IMDB_key, start_time, start_date, th_name)
+--PRIMARY KEY(IMDB_key, start_time, start_date, th_name)
 	FOREIGN KEY (th_name) REFERENCES theaters(th_name)
 );
 
