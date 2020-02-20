@@ -1,6 +1,4 @@
-from bottle import get
-from bottle import run
-from bottle import post
+from bottle import get, post, run, request, response
 import sqlite3
 import json
 
@@ -16,7 +14,8 @@ def create_sql(filename):
             conn.execute(command)
         except:
             print("except in create_sql")
-
+def format_response(d):
+    return json.dumps(d, indent=4) + "\n"
 
 @get('/ping')
 def return_pong():
@@ -32,7 +31,7 @@ def reset_db():
         """
         INSERT
         INTO    customers(user_name, full_name, password)
-        VALUES  ("sepehr", "Sepehr Tayari", "s123"),
+        VALUES  ("sepehr123", "Sepehr Tayari", "s123"),
                 ("fabian", "Fabian Frankel", "f123"),
                 ("albin", "Albin Andersson", "a123")
         """
@@ -44,11 +43,12 @@ def reset_db():
         """
         INSERT
         INTO    movies(name, year, IMDB_key, duration)
-        VALUES   ("The Shape of Water", 2017, "tt5580390", 120),
+        VALUES  ("The Shape of Water", 2017, "tt5580390", 120),
                 ("Moonlight", 2016, "tt4975722", 120),
                 ("Spotlight", 2015, "tt1895587", 120),
                 ("Birdman", 2014, "tt2562232", 120)
-        """)
+        """
+    )
     conn.commit()
 
     c.execute(
@@ -59,7 +59,7 @@ def reset_db():
                 ("Södran", 16),
                 ("Skandia", 100)
         """
-        )
+    )
     conn.commit()
     return "OK"
 
@@ -67,18 +67,52 @@ def reset_db():
 
 
 @get('/movies')
-def return_movies():
-    c = conn.cursor()  
-    c.execute(
-        """
-        SELECT *
-        FROM   movies
-        """
-    )
-    s = [{"IMDB_KEY": IMDB_KEY, "name": name, "year": year, "duration": duration}
-         for (IMDB_KEY, name, year, duration) in c]
-    return json.dumps({"data": s}, indent=4)
+def get_movies():
+    response.content_type = 'application/json'
+    query ="""
+            SELECT *
+            FROM   movies
+            WHERE 1 = 1
+            """
+    params = []
+    if request.query.name:
+        query += "AND name = ?"
+        params.append(request.query.name)
+    if request.query.IMDB_key:
+        query += "AND IMDB_key = ?"
+        params.append(request.query.IMDB_key)
+    if request.query.year: 
+        query += "AND year = ?"
+        params.append(request.query.year)
 
+    c = conn.cursor()
+    c.execute(
+        query,
+        params
+        )
+
+    s = [{"IMDB_key": IMDB_key, "name": name, "year": year, "duration": duration}
+         for (IMDB_key, name , year,  duration) in c]
+    response.status = 200
+    return format_response({"data": s})
+    #return json.dumps({"data": s}, indent=4)
+
+@get('/movies/<IMDB_key>')
+def get_movie_from_IMDB(IMDB_key):
+    print("IMDB case")
+    response.content_type = 'application/json'
+    query = """
+            SELECT * 
+            FROM movies 
+            WHERE IMDB_KEY = ?
+            """
+    c = conn.cursor()
+    c.execute(query,
+              [IMDB_key])
+    s = [{"IMDB_key": IMDB_key, "name": name, "year": year, "duration": duration}
+         for (IMDB_key, name, year, duration) in c]
+    response.status = 200
+    return format_response({"data": s})
 
 @get('/customers')
 def return_customers():

@@ -22,7 +22,7 @@ CREATE TABLE movies(
 	IMDB_key TEXT,
 	name TEXT,
 	year INT,
-	duration INT,
+	duration INT DEFAULT 120,
 	PRIMARY KEY (IMDB_key)
 );
 

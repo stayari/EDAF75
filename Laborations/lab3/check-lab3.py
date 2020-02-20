@@ -13,7 +13,7 @@ def url(resource):
     return f"http://{HOST}:{PORT}{resource}"
 
 
-def response_to_dicts(r):
+def response_to_dicts(r): # Kommer detta returna nycklarna i data?
     return (dict(d) for d in r.json()['data'])
 
 
@@ -49,25 +49,25 @@ def check_all_movies():
         found = response_to_dicts(r)
         print("======== Found movies ========")
         for d in found:
-            title = d['title']
+            name = d['name']
             year = d['year']
-            print(f"{title} ({year})")
+            print(f"{name} ({year})")
             print("==============================")
     except Exception as e:
         abort(f"curl -X GET {url('/movies')} does not work: {e}")
 
 
-def check_movie_title(title, year):
-    resource = url(f'/movies?title={title}&year={year}')
+def check_movie_name(name, year):
+    resource = url(f'/movies?name={name}&year={year}')
     try:
         r = requests.get(resource)
         found = list(response_to_dicts(r))
         if len(found) != 1:
-            abort(f"curl -X GET {resource} returns {len(found)} movies (should have been 1)")
+            abort(f"curl -X GET {resource} returns {len(found)} movies (should have been 1). The table is: {found}")
         for d in found:
-            assert d['title'] == title
+            assert d['name'] == name
             assert d['year'] == year
-            print(f"Could get {title} ({year}) using title and year")
+            print(f"Could get {name} ({year}) using name and year")
     except Exception as e:
         abort(f"curl -X GET {resource} does not work: {e}")
 
@@ -80,9 +80,9 @@ def check_movie_imdb(imdb_key):
         if len(found) != 1:
             abort(f"{resource} returns {len(found)} movies (should have been 1)")
         for d in found:
-            title = d['title']
+            name = d['name']
             year = d['year']
-            print(f"Could get {title} ({year}) using imdb-key")
+            print(f"Could get {name} ({year}) using imdb-key")
     except Exception as e:
         abort(f"curl -X GET {resource} does not work: {e}")
 
@@ -115,7 +115,7 @@ def buy_tickets(user_id):
             perf_id = performance['performanceId']
             seats_left = performance['remainingSeats']
             print("================================")
-            print(f"Buying tickets to {performance['title']} on {performance['date']}")
+            print(f"Buying tickets to {performance['name']} on {performance['date']}")
             buy_url = url(f'/tickets?user={user_id}&performance={perf_id}&pwd=dobido')
             print("--------------------------------")
             print(f"curl -X POST {buy_url}")
@@ -149,7 +149,7 @@ def main():
     check_ping()
     check_reset()
     check_all_movies()
-    check_movie_title("Spotlight", 2015)
+    check_movie_name("Spotlight", 2015)
     check_movie_imdb("tt5580390")
     add_performances(
         'tt5580390',
