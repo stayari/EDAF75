@@ -41,7 +41,7 @@ def reset_db():
     c.execute(
         """
         INSERT
-        INTO    movies(name, year, IMDB_key, duration)
+        INTO    movies(title, year, IMDB_key, duration)
         VALUES  ("The Shape of Water", 2017, "tt5580390", 120),
                 ("Moonlight", 2016, "tt4975722", 120),
                 ("Spotlight", 2015, "tt1895587", 120),
@@ -71,9 +71,9 @@ def get_movies():
             WHERE 1 = 1
             """
     params = []
-    if request.query.name:
-        query += "AND name = ?"
-        params.append(request.query.name)
+    if request.query.title:
+        query += "AND title = ?"
+        params.append(request.query.title)
     if request.query.IMDB_key:
         query += "AND IMDB_key = ?"
         params.append(request.query.IMDB_key)
@@ -87,8 +87,8 @@ def get_movies():
         params
         )
 
-    s = [{"IMDB_key": IMDB_key, "name": name, "year": year, "duration": duration}
-         for (IMDB_key, name , year,  duration) in c]
+    s = [{"IMDB_key": IMDB_key, "title": title, "year": year, "duration": duration}
+         for (IMDB_key, title , year,  duration) in c]
     response.status = 200
     return format_response({"data": s})
     #return json.dumps({"data": s}, indent=4)
@@ -105,8 +105,8 @@ def get_movie_from_IMDB(IMDB_key):
     c = conn.cursor()
     c.execute(query,
               [IMDB_key])
-    s = [{"IMDB_key": IMDB_key, "name": name, "year": year, "duration": duration}
-         for (IMDB_key, name, year, duration) in c]
+    s = [{"IMDB_key": IMDB_key, "title": title, "year": year, "duration": duration}
+         for (IMDB_key, title, year, duration) in c]
     response.status = 200
     return format_response({"data": s})
 
@@ -123,9 +123,24 @@ def return_customers():
          for (user_name, full_name, password) in c]
     return json.dumps({"data": d}, indent=4)
 
+@get('/performances')
+def get_performances():
+    response.content_type = 'application/json'
+    c = conn.cursor()
+    c.execute(
+        """
+        SELECT * 
+        FROM performances
+        """
+    )
+    s = [{"show_id": show_id, "IMDB_key": IMDB_key, "th_name": th_name, "start_date": start_date, "start_time": start_time,
+        "remaining_seats": remaining_seats}
+       for (show_id, IMDB_key, th_name, start_date, start_time, remaining_seats) in c]
+    response.status = 200
+    return format_response({"data": s})
+
 @post('/performances')
 def put_performances():
-    print("NU ÄR VI I PERFORMANCE")
     response.content_type = 'application/json'
     IMDB_key = request.query.imdb
     start_date = request.query.date
@@ -147,7 +162,7 @@ def put_performances():
         query,
         [th_name]
     )
-    remaining_seats = c.fetchall()[0][0]
+    remaining_seats = c.fetchall()[0][0] #-1
     print(remaining_seats)
 
     c.execute(
@@ -166,10 +181,20 @@ def put_performances():
         WHERE rowid = last_insert_rowid()
         """
     )
-    id = c.fetchone()[0]
+    rows = c.fetchall()
+    per_id = [x[0] for x in rows]
+
     response.status = 200
-    return "hej"
+    return '\nperformances/' + per_id[0] + '\n'
+
+"""
+    response.status = 200
     #return format_response({"id": id})#"url": url(f"/performances/{id}")})
 
+    s = [{"IMDB_key": IMDB_key, "th_name": th_name, "start_date": start_date, "start_time": start_time, "remaining_seats": remaining_seats}
+         for (IMDB_key, th_name, start_date, start_time, remaining_seats) in c]
+    response.status = 200
+    return format_response({"data": s})
+"""
 
 run(host='localhost', port=7007)

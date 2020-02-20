@@ -20,7 +20,7 @@ CREATE TABLE theaters(
 
 CREATE TABLE movies(
 	IMDB_key TEXT,
-	name TEXT,
+	title TEXT,
 	year INT,
 	duration INT DEFAULT 120,
 	PRIMARY KEY (IMDB_key)

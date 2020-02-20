@@ -49,25 +49,25 @@ def check_all_movies():
         found = response_to_dicts(r)
         print("======== Found movies ========")
         for d in found:
-            name = d['name']
+            title = d['title']
             year = d['year']
-            print(f"{name} ({year})")
+            print(f"{title} ({year})")
             print("==============================")
     except Exception as e:
         abort(f"curl -X GET {url('/movies')} does not work: {e}")
 
 
-def check_movie_name(name, year):
-    resource = url(f'/movies?name={name}&year={year}')
+def check_movie_name(title, year):
+    resource = url(f'/movies?title={title}&year={year}')
     try:
         r = requests.get(resource)
         found = list(response_to_dicts(r))
         if len(found) != 1:
             abort(f"curl -X GET {resource} returns {len(found)} movies (should have been 1). The table is: {found}")
         for d in found:
-            assert d['name'] == name
+            assert d['title'] == title
             assert d['year'] == year
-            print(f"Could get {name} ({year}) using name and year")
+            print(f"Could get {title} ({year}) using name and year")
     except Exception as e:
         abort(f"curl -X GET {resource} does not work: {e}")
 
@@ -80,9 +80,9 @@ def check_movie_imdb(imdb_key):
         if len(found) != 1:
             abort(f"{resource} returns {len(found)} movies (should have been 1)")
         for d in found:
-            name = d['name']
+            title = d['title']
             year = d['year']
-            print(f"Could get {name} ({year}) using imdb-key")
+            print(f"Could get {title} ({year}) using imdb-key")
     except Exception as e:
         abort(f"curl -X GET {resource} does not work: {e}")
 
@@ -111,11 +111,13 @@ def buy_tickets(user_id):
         for _ in range(2):
             resource = url('/performances')
             r = requests.get(resource)
-            performance = next(p for p in response_to_dicts(r) if p['theater'] == 'Kino' and p['remainingSeats'] > 0)
-            perf_id = performance['performanceId']
-            seats_left = performance['remainingSeats']
+            print("innan next", r)
+            performance = next(p for p in response_to_dicts(r) if p['th_name'] == 'Kino' and p['remaining_seats'] > 0)
+            print("efter next")
+            perf_id = performance['show_id']
+            seats_left = performance['remaining_seats']
             print("================================")
-            print(f"Buying tickets to {performance['name']} on {performance['date']}")
+            print(f"Buying tickets to {performance['title']} on {performance['start_date']}")
             buy_url = url(f'/tickets?user={user_id}&performance={perf_id}&pwd=dobido')
             print("--------------------------------")
             print(f"curl -X POST {buy_url}")
