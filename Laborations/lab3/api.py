@@ -31,10 +31,10 @@ def reset_db():
         """
         INSERT
         INTO    customers(user_name, full_name, password)
-        VALUES  ("sepehr123", "Sepehr Tayari", "s123"),
-                ("fabian", "Fabian Frankel", "f123"),
-                ("albin", "Albin Andersson", "a123")
-        """
+        VALUES  ("sepehr123", "Sepehr Tayari", ?),
+                ("alice", "Fabian Frankel", ?),
+                ("albin", "Albin Andersson", ?)
+        """, [hash("hej"), hash("dobido"), hash("123")]
     )
     conn.commit()
 
@@ -201,7 +201,7 @@ def put_performances():
 @post('/tickets')
 def post_ticket():
     #?user=<user-id>\&performance=<performance-id>\&pwd=<pwd>
-    response.content_type = 'application/json'
+    response.content_type = 'tickets/json'
     user_name = request.query.user
     show_id = request.query.performance
     password = request.query.pwd
@@ -238,16 +238,17 @@ def post_ticket():
     query = """
             SELECT password
             FROM customers
-            WHERE user_name = user_name;
+            WHERE user_name = ?;
             """
-    c.execute(query)
+    c.execute(query,
+    [user_name])
 
     pwd = str(c.fetchall()[0][0])
 
 
 
     print(th_name, IMDB_key, start_time, start_date, user_name, show_id)
-    if remaining_seats > 0 and pwd == hash(password):
+    if remaining_seats > 0 and pwd == str(hash(password)):
         query = """
                 UPDATE performances
                 SET remaining_seats = ?
@@ -276,15 +277,19 @@ def post_ticket():
                 WHERE rowid = last_insert_rowid();
                 """
         c.execute(query)
-        returnID = str(c.fetchall()[0][0])
+        returnID = c.fetchall()[0][0]
+        print("0")
         return "/tickets/" + returnID
-    elif pwd == hash(password):
+    elif pwd == str(hash(password)):
+        print("1")
         return "No tickets left"
 
     elif remaining_seats > 0:
+        print("2")
         return "There is no user tied to that password"
 
     else:
+        print("3")
         return "ERROR"
 
 
@@ -295,18 +300,18 @@ def get_customers(customerID):
     print("hej")
     query = """
             SELECT start_date, start_time, th_name, title, year, count() as count
-            FROM customers
-            JOIN tickets
-            USING (user_name)
+            FROM tickets
+            JOIN performances
+            USING (show_id)
             JOIN movies
-            USING IMDB_key
-            WHERE customerID = ?
-            GROUP BY show_id
+            USING (IMDB_key)
+            WHERE user_name = ?
+            GROUP BY (show_id)
             """
     c = conn.cursor()
     c.execute(query,
               [customerID])
-    print(1)
+    print("hejsan")
 
     s = [{"start_date": start_date, "start_time": start_time, "th_name": th_name, "title": title, "year": year, "count": count}
          for (start_date, start_time, th_name, title, year, count) in c]
