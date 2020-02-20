@@ -1,6 +1,7 @@
 from bottle import get, post, run, request, response
 import sqlite3
 import json
+import hashlib
 
 conn = sqlite3.connect("movies2.sqlite")
 
@@ -148,7 +149,7 @@ def put_performances():
     th_name = request.query.theater
     print(IMDB_key, start_time, start_date, th_name)
 
-    if not (IMDB_key and start_date and start_time and th_name):
+    if not (IMDB_key and start_date and start_time and th_name):            #Borde de inte vara or?
         response.status = 400
         return format_response({"error: Missing parameter"})
 
@@ -196,5 +197,126 @@ def put_performances():
     response.status = 200
     return format_response({"data": s})
 """
+
+@post('/tickets')
+def post_ticket():
+    #?user=<user-id>\&performance=<performance-id>\&pwd=<pwd>
+    response.content_type = 'application/json'
+    user_name = request.query.user
+    show_id = request.query.performance
+    password = request.query.pwd
+
+    print(user_name, show_id, password)
+
+    if not (user_name and show_id and password):      #Borde de inte vara or?
+        response.status = 400
+        return format_response({"error: Missing parameter"})
+
+
+    c = conn.cursor()
+    query = """
+            SELECT  remaining_seats, th_name, IMDB_key, start_time, start_date
+            FROM    performances
+            WHERE   show_id = ?
+            """
+    c.execute(
+        query,
+        [show_id]
+    )
+
+   
+    
+    data = c.fetchall()[0]
+
+    
+    remaining_seats = data[0]
+    th_name = data[1]
+    IMDB_key = data[2]
+    start_time = data[3]
+    start_date = data[4]
+
+    query = """
+            SELECT password
+            FROM customers
+            WHERE user_name = user_name;
+            """
+    c.execute(query)
+
+    pwd = str(c.fetchall()[0][0])
+
+
+
+    print(th_name, IMDB_key, start_time, start_date, user_name, show_id)
+    if remaining_seats > 0 and pwd == hash(password):
+        query = """
+                UPDATE performances
+                SET remaining_seats = ?
+                WHERE show_id = show_id;
+                """
+        c.execute(
+            query,
+            [remaining_seats-1]
+        )
+        conn.commit()
+
+        query = """
+                INSERT 
+                INTO    tickets(th_name, IMDB_key, start_time, start_date, user_name, show_id)
+                VALUES  (?, ?, ?, ?, ?, ?)
+                """
+        c.execute(
+            query,
+            [th_name, IMDB_key, start_time, start_date, user_name, show_id]   
+        )
+        conn.commit()
+
+        query = """
+                SELECT ticket_id
+                FROM tickets
+                WHERE rowid = last_insert_rowid();
+                """
+        c.execute(query)
+        returnID = str(c.fetchall()[0][0])
+        return "/tickets/" + returnID
+    elif pwd == hash(password):
+        return "No tickets left"
+
+    elif remaining_seats > 0:
+        return "There is no user tied to that password"
+
+    else:
+        return "ERROR"
+
+
+@get('customers/<customerID>/tickets')
+def get_customers(customerID):
+    print(customerID)
+    response.content_type = 'application/json'
+    print("hej")
+    query = """
+            SELECT start_date, start_time, th_name, title, year, count() as count
+            FROM customers
+            JOIN tickets
+            USING (user_name)
+            JOIN movies
+            USING IMDB_key
+            WHERE customerID = ?
+            GROUP BY show_id
+            """
+    c = conn.cursor()
+    c.execute(query,
+              [customerID])
+    print(1)
+
+    s = [{"start_date": start_date, "start_time": start_time, "th_name": th_name, "title": title, "year": year, "count": count}
+         for (start_date, start_time, th_name, title, year, count) in c]
+    response.status = 200
+    return format_response({"data": s})
+
+        
+
+
+def hash(msg):
+    return hashlib.sha256(msg.encode('utf-8')).hexdigest()
 
 run(host='localhost', port=7007)

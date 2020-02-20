@@ -10,6 +10,8 @@ DROP TABLE IF EXISTS customers;
 
 DROP TABLE IF EXISTS tickets;
 
+DROP TABLE IF EXISTS performances;
+
 PRAGMA foreign_keys = OFF;
 
 CREATE TABLE theaters(
@@ -52,9 +54,12 @@ CREATE TABLE tickets(
 	start_time TIME,
 	start_date DATE,
 	user_name TEXT,
+	show_id INT,
 	PRIMARY KEY (ticket_id) 
-	FOREIGN KEY (th_name, IMDB_key, start_time, start_date)
-	REFERENCES shows(th_name, IMDB_key, start_time, start_date)
+	--FOREIGN KEY (th_name, IMDB_key, start_time, start_date)
+	--REFERENCES shows(th_name, IMDB_key, start_time, start_date)
+	FOREIGN KEY (show_id)
+	REFERENCES shows(show_id)
 	FOREIGN KEY	(user_name) 
 	REFERENCES customers(user_name)
 	);
