@@ -215,7 +215,7 @@ def post_ticket():
 
     c = conn.cursor()
     query = """
-            SELECT  remaining_seats, th_name, IMDB_key, start_time, start_date
+            SELECT  remaining_seats
             FROM    performances
             WHERE   show_id = ?
             """
@@ -226,14 +226,8 @@ def post_ticket():
 
    
     
-    data = c.fetchall()[0]
+    remaining_seats = c.fetchall()[0][0]
 
-    
-    remaining_seats = data[0]
-    th_name = data[1]
-    IMDB_key = data[2]
-    start_time = data[3]
-    start_date = data[4]
 
     query = """
             SELECT password
@@ -247,7 +241,7 @@ def post_ticket():
 
 
 
-    print(th_name, IMDB_key, start_time, start_date, user_name, show_id, remaining_seats, pwd)
+    print(user_name, show_id, remaining_seats, pwd)
     if remaining_seats > 0 and pwd == str(hash(password)):
         query = """
                 UPDATE performances
@@ -262,12 +256,12 @@ def post_ticket():
 
         query = """
                 INSERT 
-                INTO    tickets(th_name, IMDB_key, start_time, start_date, user_name, show_id)
-                VALUES  (?, ?, ?, ?, ?, ?)
+                INTO    tickets(user_name, show_id)
+                VALUES  (?, ?)
                 """
         c.execute(
             query,
-            [th_name, IMDB_key, start_time, start_date, user_name, show_id]   
+            [user_name, show_id]   
         )
         conn.commit()
 

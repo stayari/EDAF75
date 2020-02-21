@@ -49,17 +49,11 @@ CREATE TABLE customers(
 
 CREATE TABLE tickets(
 	ticket_id INT DEFAULT (lower(hex(randomblob(16)))),
-	th_name TEXT,
-	IMDB_key TEXT,
-	start_time TIME,
-	start_date DATE,
 	user_name TEXT,
 	show_id INT,
 	PRIMARY KEY (ticket_id) 
-	--FOREIGN KEY (th_name, IMDB_key, start_time, start_date)
-	--REFERENCES shows(th_name, IMDB_key, start_time, start_date)
 	FOREIGN KEY (show_id)
-	REFERENCES shows(show_id)
+	REFERENCES performances(show_id)
 	FOREIGN KEY	(user_name) 
 	REFERENCES customers(user_name)
 	);
