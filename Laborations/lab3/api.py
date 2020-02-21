@@ -96,7 +96,7 @@ def get_movies():
 
 @get('/movies/<IMDB_key>')
 def get_movie_from_IMDB(IMDB_key):
-    print("IMDB case")
+    print(IMDB_key)
     response.content_type = 'application/json'
     query = """
             SELECT * 
@@ -247,7 +247,7 @@ def post_ticket():
 
 
 
-    print(th_name, IMDB_key, start_time, start_date, user_name, show_id)
+    print(th_name, IMDB_key, start_time, start_date, user_name, show_id, remaining_seats, pwd)
     if remaining_seats > 0 and pwd == str(hash(password)):
         query = """
                 UPDATE performances
@@ -293,9 +293,9 @@ def post_ticket():
         return "ERROR"
 
 
-@get('customers/<customerID>/tickets')
-def get_customers(customerID):
-    print(customerID)
+@get('/customers/<user_name>/tickets')
+def get_customers(user_name):
+    print(user_name)
     response.content_type = 'application/json'
     print("hej")
     query = """
@@ -310,7 +310,7 @@ def get_customers(customerID):
             """
     c = conn.cursor()
     c.execute(query,
-              [customerID])
+            [user_name])
     print("hejsan")
 
     s = [{"start_date": start_date, "start_time": start_time, "th_name": th_name, "title": title, "year": year, "count": count}
