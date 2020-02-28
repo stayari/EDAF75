@@ -130,7 +130,7 @@ def get_performances():
     c = conn.cursor()
     c.execute(
         """
-        SELECT * 
+        SELECT *
         FROM performances
         """
     )
@@ -245,12 +245,11 @@ def post_ticket():
     if remaining_seats > 0 and pwd == str(hash(password)):
         query = """
                 UPDATE performances
-                SET remaining_seats = ?
+                SET remaining_seats = remaining_seats - 1 
                 WHERE show_id = show_id;
                 """
         c.execute(
-            query,
-            [remaining_seats-1]
+            query
         )
         conn.commit()
 
